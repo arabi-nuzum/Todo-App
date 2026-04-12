@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Todo App</title>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Segoe UI;
+  scroll-behavior: smooth;
+}
+
+body{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  transition:0.4s;
+}
+
+body.light{
+  background: #f0f0f0;
+  color:black;
+}
+
+.container{
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(15px);
+  padding:30px;
+  border-radius:15px;
+  width:350px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  transition:0.4s;
+}
+
+body.light .container{
+  background:white;
+  color:black;
+}
+
+h1{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.toggle-btn{
+  position:absolute;
+  top:20px;
+  right:20px;
+  padding:8px 15px;
+  border:none;
+  border-radius:20px;
+  background:#00f2fe;
+  cursor:pointer;
+  font-weight:bold;
+  color:black;
+}
+
+.input-section{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+input{
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+button.add-btn{
+  padding:10px 15px;
+  border:none;
+  background:#667eea;
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button.add-btn:hover{
+  transform: scale(1.05);
+}
+
+.filter-section{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.filter-btn{
+  padding:5px 12px;
+  border:none;
+  border-radius:20px;
+  background:rgba(255,255,255,0.2);
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.filter-btn:hover{
+  background:#00f2fe;
+  color:black;
+}
+
+ul{
+  list-style:none;
+}
+
+li{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:rgba(255,255,255,0.2);
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  transition:0.3s;
+}
+
+li.completed{
+  text-decoration: line-through;
+  color:gray;
+  opacity:0.8;
+}
+
+li:hover{
+  transform: translateX(5px);
+}
+
+.delete{
+  background:red;
+  padding:5px 10px;
+  border-radius:5px;
+  color:white;
+  cursor:pointer;
+}
+
+@media(max-width:768px){
+  .container{
+    width:90%;
+  }
+}
+
+</style>
+</head>
+
+<body id="body">
+
+<button class="toggle-btn" onclick="toggleMode()">Light / Dark</button>
+
+<div class="container">
+<h1>Advanced Todo App</h1>
+
+<div class="input-section">
+<input type="text" id="taskInput" placeholder="Add a task">
+<button class="add-btn" onclick="addTask()">Add</button>
+</div>
+
+<div class="filter-section">
+<button class="filter-btn" onclick="filterTasks('all')">All</button>
+<button class="filter-btn" onclick="filterTasks('pending')">Pending</button>
+<button class="filter-btn" onclick="filterTasks('completed')">Completed</button>
+</div>
+
+<ul id="taskList"></ul>
+
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || []
+let currentFilter = "all"
+
+function renderTasks(){
+  const list = document.getElementById("taskList")
+  list.innerHTML=""
+
+  let filteredTasks = tasks
+  if(currentFilter==="completed"){
+    filteredTasks = tasks.filter(t => t.completed)
+  }else if(currentFilter==="pending"){
+    filteredTasks = tasks.filter(t => !t.completed)
+  }
+
+  filteredTasks.forEach((task,index)=>{
+    const li = document.createElement("li")
+    li.className = task.completed ? "completed" : ""
+    li.innerHTML = `
+      <span onclick="toggleTask(${index})">${task.text}</span>
+      <span class="delete" onclick="deleteTask(${index})">X</span>
+    `
+    list.appendChild(li)
+  })
+
+  localStorage.setItem("tasks",JSON.stringify(tasks))
+}
+
+function addTask(){
+  const input = document.getElementById("taskInput")
+  if(input.value==="") return
+
+  tasks.push({text:input.value,completed:false})
+  input.value=""
+  renderTasks()
+}
+
+function toggleTask(index){
+  tasks[index].completed=!tasks[index].completed
+  renderTasks()
+}
+
+function deleteTask(index){
+  tasks.splice(index,1)
+  renderTasks()
+}
+
+function filterTasks(type){
+  currentFilter = type
+  renderTasks()
+}
+
+function toggleMode(){
+  document.getElementById("body").classList.toggle("light")
+}
+
+renderTasks()
+</script>
+
+</body>
+</html>
