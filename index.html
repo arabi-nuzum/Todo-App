@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Todo App</title>
+</head>
+
+<body id="body">
+
+<button class="toggle-btn" onclick="toggleMode()">Light / Dark</button>
+
+<div class="container">
+<h1>Advanced Todo App</h1>
+
+<div class="input-section">
+<input type="text" id="taskInput" placeholder="Add a task">
+<button class="add-btn" onclick="addTask()">Add</button>
+</div>
+
+<div class="filter-section">
+<button class="filter-btn" onclick="filterTasks('all')">All</button>
+<button class="filter-btn" onclick="filterTasks('pending')">Pending</button>
+<button class="filter-btn" onclick="filterTasks('completed')">Completed</button>
+</div>
+
+<ul id="taskList"></ul>
+
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || []
+let currentFilter = "all"
+
+function renderTasks(){
+  const list = document.getElementById("taskList")
+  list.innerHTML=""
+
+  let filteredTasks = tasks
+  if(currentFilter==="completed"){
+    filteredTasks = tasks.filter(t => t.completed)
+  }else if(currentFilter==="pending"){
+    filteredTasks = tasks.filter(t => !t.completed)
+  }
+
+  filteredTasks.forEach((task,index)=>{
+    const li = document.createElement("li")
+    li.className = task.completed ? "completed" : ""
+    li.innerHTML = `
+      <span onclick="toggleTask(${index})">${task.text}</span>
+      <span class="delete" onclick="deleteTask(${index})">X</span>
+    `
+    list.appendChild(li)
+  })
+
+  localStorage.setItem("tasks",JSON.stringify(tasks))
+}
+
+function addTask(){
+  const input = document.getElementById("taskInput")
+  if(input.value==="") return
+
+  tasks.push({text:input.value,completed:false})
+  input.value=""
+  renderTasks()
+}
+
+function toggleTask(index){
+  tasks[index].completed=!tasks[index].completed
+  renderTasks()
+}
+
+function deleteTask(index){
+  tasks.splice(index,1)
+  renderTasks()
+}
+
+function filterTasks(type){
+  currentFilter = type
+  renderTasks()
+}
+
+function toggleMode(){
+  document.getElementById("body").classList.toggle("light")
+}
+
+renderTasks()
+</script>
+
+</body>
+</html>
